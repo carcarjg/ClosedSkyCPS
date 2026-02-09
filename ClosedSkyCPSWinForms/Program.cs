@@ -1,3 +1,20 @@
+// %%%%%%    @%%%%%@
+//%%%%%%%%   %%%%%%%@
+//@%%%%%%%@  %%%%%%%%%        @@      @@  @@@      @@@ @@@     @@@ @@@@@@@@@@   @@@@@@@@@
+//%%%%%%%%@ @%%%%%%%%       @@@@@   @@@@ @@@@@   @@@@ @@@@   @@@@ @@@@@@@@@@@@@@@@@@@@@@@ @@@@
+// @%%%%%%%%  %%%%%%%%%      @@@@@@  @@@@  @@@@  @@@@   @@@@@@@@@     @@@@    @@@@         @@@@
+//  %%%%%%%%%  %%%%%%%%@     @@@@@@@ @@@@   @@@@@@@@     @@@@@@       @@@@    @@@@@@@@@@@  @@@@
+//   %%%%%%%%@  %%%%%%%%%    @@@@@@@@@@@@     @@@@        @@@@@       @@@@    @@@@@@@@@@@  @@@@
+//    %%%%%%%%@ @%%%%%%%%    @@@@ @@@@@@@     @@@@      @@@@@@@@      @@@@    @@@@         @@@@
+//    @%%%%%%%%% @%%%%%%%%   @@@@   @@@@@     @@@@     @@@@@ @@@@@    @@@@    @@@@@@@@@@@@ @@@@@@@@@@
+//     @%%%%%%%%  %%%%%%%%@  @@@@    @@@@     @@@@    @@@@     @@@@   @@@@    @@@@@@@@@@@@ @@@@@@@@@@@
+//      %%%%%%%%@ @%%%%%%%%
+//      @%%%%%%%%  @%%%%%%%%
+//       %%%%%%%%   %%%%%%%@
+//         %%%%%      %%%%
+//
+// Copyright (C) 2025-2026 NyxTel Wireless / Nyx Gallini
+//
 namespace ClosedSkyCPSWinForms
 {
     internal static class Program
@@ -6,11 +23,15 @@ namespace ClosedSkyCPSWinForms
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+
+            using (SplashScreen splash = new SplashScreen())
+            {
+                splash.ShowDialog();
+            }
+
             Application.Run(new Form1());
         }
     }
