@@ -17,6 +17,7 @@
 //
 using System.Diagnostics;
 using System.Net.Mail;
+using System.Text;
 
 namespace ClosedSkyCPSWinForms
 {
@@ -546,9 +547,9 @@ namespace ClosedSkyCPSWinForms
 
             using SaveFileDialog saveFileDialog = new()
             {
-                Filter = "Settings Files (*.cfg)|*.cfg|All Files (*.*)|*.*",
-                DefaultExt = "cfg",
-                FileName = $"RadioSettings_{esnTXT.Text}_{DateTime.Now:yyyyMMdd_HHmmss}.cfg",
+                Filter = "OpenSky Codeplugs (*.openskycpg)|*.openskycpg|All Files (*.*)|*.*",
+                DefaultExt = "openskycpg",
+                FileName = $"OpenSkySettings_{esnTXT.Text}_{DateTime.Now:yyyyMMdd_HHmmss}.openskycpg",
                 Title = "Save Radio Settings"
             };
 
@@ -556,24 +557,39 @@ namespace ClosedSkyCPSWinForms
             {
                 try
                 {
-                    using StreamWriter writer = new(saveFileDialog.FileName);
+                    string extension = Path.GetExtension(saveFileDialog.FileName).ToLowerInvariant();
 
-                    writer.WriteLine($"# Radio Settings Saved: {DateTime.Now}");
-                    writer.WriteLine($"# ESN: {esnTXT.Text}");
-                    writer.WriteLine($"# Total Settings: {atvSettings.Count}");
-                    writer.WriteLine();
-
-                    foreach (var kvp in atvSettings)
+                    if (extension == ".openskycpg")
                     {
-                        writer.WriteLine($"{kvp.Key}: {kvp.Value}");
-                    }
+                        ConfigurationFile.SaveEncrypted(
+                            saveFileDialog.FileName,
+                            esnTXT.Text,
+                            atvSettings,
+                            "HarrisKilledTheOpenSkyStar");
 
-                    debugRTB.AppendText($"[DEBUG] Settings saved successfully to: {saveFileDialog.FileName}\n");
-                    MessageBox.Show(
-                        $"Settings saved successfully!\n\nFile: {saveFileDialog.FileName}",
-                        "Save Successful",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        debugRTB.AppendText($"[DEBUG] OpenSky settings saved to: {saveFileDialog.FileName}\n");
+                    }
+                    else
+                    {
+                        using StreamWriter writer = new(saveFileDialog.FileName);
+
+                        writer.WriteLine($"# Radio Settings Saved: {DateTime.Now}");
+                        writer.WriteLine($"# ESN: {esnTXT.Text}");
+                        writer.WriteLine($"# Total Settings: {atvSettings.Count}");
+                        writer.WriteLine();
+
+                        foreach (var kvp in atvSettings)
+                        {
+                            writer.WriteLine($"{kvp.Key}: {kvp.Value}");
+                        }
+
+                        debugRTB.AppendText($"[DEBUG] Settings saved to: {saveFileDialog.FileName}\n");
+                        MessageBox.Show(
+                            $"Settings saved successfully!\n\nFile: {saveFileDialog.FileName}",
+                            "Save Successful",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -591,8 +607,8 @@ namespace ClosedSkyCPSWinForms
         {
             using OpenFileDialog openFileDialog = new()
             {
-                Filter = "Settings Files (*.cfg)|*.cfg|All Files (*.*)|*.*",
-                DefaultExt = "cfg",
+                Filter = "OpenSky Codeplugs (*.openskycpg)|*.openskycpg|All Files (*.*)|*.*",
+                DefaultExt = "openskycpg",
                 Title = "Load Radio Settings"
             };
 
@@ -600,48 +616,83 @@ namespace ClosedSkyCPSWinForms
             {
                 try
                 {
-                    atvSettings.Clear();
+                    bool isEncrypted = IsEncryptedFile(openFileDialog.FileName);
 
-                    using StreamReader reader = new(openFileDialog.FileName);
-                    string? line;
-                    int settingsLoaded = 0;
-                    int lineNumber = 0;
-
-                    while ((line = reader.ReadLine()) is not null)
+                    if (isEncrypted)
                     {
-                        lineNumber++;
+                        debugRTB.AppendText($"[DEBUG] Detected encrypted OpenSky codeplug format.\n");
 
-                        if (lineNumber == 2 && line.StartsWith("# ESN: "))
+                        ConfigurationFile.ConfigData data = ConfigurationFile.LoadEncrypted(
+                            openFileDialog.FileName,
+                            "HarrisKilledTheOpenSkyStar");
+
+                        atvSettings.Clear();
+                        foreach (var kvp in data.Settings)
                         {
-                            string esnValue = line[7..].Trim();
-                            esnTXT.Text = esnValue;
-                            debugRTB.AppendText($"[DEBUG] ESN loaded: {esnValue}\n");
-                            continue;
+                            atvSettings[kvp.Key] = kvp.Value;
                         }
 
-                        if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
-                        {
-                            continue;
-                        }
+                        esnTXT.Text = data.ESN;
+                        LoadATVIntoUI();
 
-                        int separatorIndex = line.IndexOf(": ");
-                        if (separatorIndex >= 0)
-                        {
-                            string key = line[..separatorIndex];
-                            string value = line[(separatorIndex + 2)..];
-                            atvSettings[key] = value;
-                            settingsLoaded++;
-                        }
+                        debugRTB.AppendText($"[DEBUG] Loaded {atvSettings.Count} encrypted settings from: {openFileDialog.FileName}\n");
+                        debugRTB.AppendText($"[DEBUG] ESN: {data.ESN}\n");
+                        debugRTB.AppendText($"[DEBUG] Saved: {data.SavedDate}\n");
+                        debugRTB.AppendText($"[DEBUG] Checksum verified successfully.\n");
+
+                        MessageBox.Show(
+                            $"Settings loaded successfully!\n\nFile: {openFileDialog.FileName}\nESN: {data.ESN}\nSettings loaded: {atvSettings.Count}",
+                            "Load Successful",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
                     }
+                    else
+                    {
+                        debugRTB.AppendText($"[DEBUG] Detected plain text file format.\n");
 
-                    LoadATVIntoUI();
+                        atvSettings.Clear();
 
-                    debugRTB.AppendText($"[DEBUG] Loaded {settingsLoaded} settings from: {openFileDialog.FileName}\n");
-                    MessageBox.Show(
-                        $"Settings loaded successfully!\n\nFile: {openFileDialog.FileName}\nSettings loaded: {settingsLoaded}",
-                        "Load Successful",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        using StreamReader reader = new(openFileDialog.FileName);
+                        string? line;
+                        int settingsLoaded = 0;
+                        int lineNumber = 0;
+
+                        while ((line = reader.ReadLine()) is not null)
+                        {
+                            lineNumber++;
+
+                            if (lineNumber == 2 && line.StartsWith("# ESN: "))
+                            {
+                                string esnValue = line[7..].Trim();
+                                esnTXT.Text = esnValue;
+                                debugRTB.AppendText($"[DEBUG] ESN loaded: {esnValue}\n");
+                                continue;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+                            {
+                                continue;
+                            }
+
+                            int separatorIndex = line.IndexOf(": ");
+                            if (separatorIndex >= 0)
+                            {
+                                string key = line[..separatorIndex];
+                                string value = line[(separatorIndex + 2)..];
+                                atvSettings[key] = value;
+                                settingsLoaded++;
+                            }
+                        }
+
+                        LoadATVIntoUI();
+
+                        debugRTB.AppendText($"[DEBUG] Loaded {settingsLoaded} settings from: {openFileDialog.FileName}\n");
+                        MessageBox.Show(
+                            $"Settings loaded successfully!\n\nFile: {openFileDialog.FileName}\nSettings loaded: {settingsLoaded}",
+                            "Load Successful",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -652,6 +703,28 @@ namespace ClosedSkyCPSWinForms
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private bool IsEncryptedFile(string filePath)
+        {
+            try
+            {
+                using FileStream fs = new(filePath, FileMode.Open, FileAccess.Read);
+                if (fs.Length < 12)
+                {
+                    return false;
+                }
+
+                byte[] header = new byte[12];
+                fs.Read(header, 0, 12);
+
+                string magic = Encoding.ASCII.GetString(header);
+                return magic == "OPENSKYCPGV1";
+            }
+            catch
+            {
+                return false;
             }
         }
     }
