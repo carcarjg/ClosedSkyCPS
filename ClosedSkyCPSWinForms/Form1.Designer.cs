@@ -67,8 +67,19 @@
             ambetonedetCHK = new CheckBox();
             autolockCHK = new CheckBox();
             tabPage3 = new TabPage();
-            tabPage4 = new TabPage();
-            tabPage5 = new TabPage();
+            systeminfoTab = new TabPage();
+            label12 = new Label();
+            spnetIDTXT = new TextBox();
+            label11 = new Label();
+            wasvcidTXT = new TextBox();
+            tnicpt = new Label();
+            tnicptTXT = new TextBox();
+            tnicaddr = new Label();
+            tnicaddrTXT = new TextBox();
+            panel3 = new Panel();
+            VoiceRegCHK = new CheckBox();
+            autoprovCHK = new CheckBox();
+            AutoRegCHK = new CheckBox();
             tabPage6 = new TabPage();
             tabPage7 = new TabPage();
             tabPage8 = new TabPage();
@@ -86,6 +97,8 @@
             panel1.SuspendLayout();
             tabPage2.SuspendLayout();
             panel2.SuspendLayout();
+            systeminfoTab.SuspendLayout();
+            panel3.SuspendLayout();
             DebugTB.SuspendLayout();
             SuspendLayout();
             // 
@@ -94,8 +107,7 @@
             RadioSettingsTAbCTL.Controls.Add(tabPage1);
             RadioSettingsTAbCTL.Controls.Add(tabPage2);
             RadioSettingsTAbCTL.Controls.Add(tabPage3);
-            RadioSettingsTAbCTL.Controls.Add(tabPage4);
-            RadioSettingsTAbCTL.Controls.Add(tabPage5);
+            RadioSettingsTAbCTL.Controls.Add(systeminfoTab);
             RadioSettingsTAbCTL.Controls.Add(tabPage6);
             RadioSettingsTAbCTL.Controls.Add(tabPage7);
             RadioSettingsTAbCTL.Controls.Add(tabPage8);
@@ -480,25 +492,128 @@
             tabPage3.Text = "tabPage3";
             tabPage3.UseVisualStyleBackColor = true;
             // 
-            // tabPage4
+            // systeminfoTab
             // 
-            tabPage4.Location = new Point(4, 34);
-            tabPage4.Name = "tabPage4";
-            tabPage4.Padding = new Padding(3);
-            tabPage4.Size = new Size(1223, 802);
-            tabPage4.TabIndex = 3;
-            tabPage4.Text = "tabPage4";
-            tabPage4.UseVisualStyleBackColor = true;
+            systeminfoTab.Controls.Add(label12);
+            systeminfoTab.Controls.Add(spnetIDTXT);
+            systeminfoTab.Controls.Add(label11);
+            systeminfoTab.Controls.Add(wasvcidTXT);
+            systeminfoTab.Controls.Add(tnicpt);
+            systeminfoTab.Controls.Add(tnicptTXT);
+            systeminfoTab.Controls.Add(tnicaddr);
+            systeminfoTab.Controls.Add(tnicaddrTXT);
+            systeminfoTab.Controls.Add(panel3);
+            systeminfoTab.Location = new Point(4, 34);
+            systeminfoTab.Name = "systeminfoTab";
+            systeminfoTab.Padding = new Padding(3);
+            systeminfoTab.Size = new Size(1223, 802);
+            systeminfoTab.TabIndex = 3;
+            systeminfoTab.Text = "System Info";
+            systeminfoTab.UseVisualStyleBackColor = true;
             // 
-            // tabPage5
+            // label12
             // 
-            tabPage5.Location = new Point(4, 34);
-            tabPage5.Name = "tabPage5";
-            tabPage5.Padding = new Padding(3);
-            tabPage5.Size = new Size(1223, 802);
-            tabPage5.TabIndex = 4;
-            tabPage5.Text = "System Info";
-            tabPage5.UseVisualStyleBackColor = true;
+            label12.AutoSize = true;
+            label12.Location = new Point(353, 68);
+            label12.Name = "label12";
+            label12.Size = new Size(189, 25);
+            label12.TabIndex = 9;
+            label12.Text = "Service Provider NetID";
+            // 
+            // spnetIDTXT
+            // 
+            spnetIDTXT.Location = new Point(548, 65);
+            spnetIDTXT.Name = "spnetIDTXT";
+            spnetIDTXT.Size = new Size(150, 31);
+            spnetIDTXT.TabIndex = 8;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(393, 23);
+            label11.Name = "label11";
+            label11.Size = new Size(149, 25);
+            label11.TabIndex = 7;
+            label11.Text = "Wide Area Svc ID";
+            // 
+            // wasvcidTXT
+            // 
+            wasvcidTXT.Location = new Point(548, 20);
+            wasvcidTXT.Name = "wasvcidTXT";
+            wasvcidTXT.Size = new Size(150, 31);
+            wasvcidTXT.TabIndex = 6;
+            // 
+            // tnicpt
+            // 
+            tnicpt.AutoSize = true;
+            tnicpt.Location = new Point(39, 71);
+            tnicpt.Name = "tnicpt";
+            tnicpt.Size = new Size(87, 25);
+            tnicpt.TabIndex = 5;
+            tnicpt.Text = "TNIC Port";
+            // 
+            // tnicptTXT
+            // 
+            tnicptTXT.Location = new Point(132, 68);
+            tnicptTXT.Name = "tnicptTXT";
+            tnicptTXT.Size = new Size(150, 31);
+            tnicptTXT.TabIndex = 4;
+            // 
+            // tnicaddr
+            // 
+            tnicaddr.AutoSize = true;
+            tnicaddr.Location = new Point(6, 23);
+            tnicaddr.Name = "tnicaddr";
+            tnicaddr.Size = new Size(120, 25);
+            tnicaddr.TabIndex = 3;
+            tnicaddr.Text = "TNIC Address";
+            // 
+            // tnicaddrTXT
+            // 
+            tnicaddrTXT.Location = new Point(132, 20);
+            tnicaddrTXT.Name = "tnicaddrTXT";
+            tnicaddrTXT.Size = new Size(150, 31);
+            tnicaddrTXT.TabIndex = 2;
+            // 
+            // panel3
+            // 
+            panel3.Controls.Add(VoiceRegCHK);
+            panel3.Controls.Add(autoprovCHK);
+            panel3.Controls.Add(AutoRegCHK);
+            panel3.Location = new Point(1017, 6);
+            panel3.Name = "panel3";
+            panel3.Size = new Size(200, 123);
+            panel3.TabIndex = 1;
+            // 
+            // VoiceRegCHK
+            // 
+            VoiceRegCHK.AutoSize = true;
+            VoiceRegCHK.Location = new Point(14, 13);
+            VoiceRegCHK.Name = "VoiceRegCHK";
+            VoiceRegCHK.Size = new Size(115, 29);
+            VoiceRegCHK.TabIndex = 26;
+            VoiceRegCHK.Text = "Voice Reg";
+            VoiceRegCHK.UseVisualStyleBackColor = true;
+            // 
+            // autoprovCHK
+            // 
+            autoprovCHK.AutoSize = true;
+            autoprovCHK.Location = new Point(14, 83);
+            autoprovCHK.Name = "autoprovCHK";
+            autoprovCHK.Size = new Size(180, 29);
+            autoprovCHK.TabIndex = 24;
+            autoprovCHK.Text = "Auto Provisioning";
+            autoprovCHK.UseVisualStyleBackColor = true;
+            // 
+            // AutoRegCHK
+            // 
+            AutoRegCHK.AutoSize = true;
+            AutoRegCHK.Location = new Point(14, 48);
+            AutoRegCHK.Name = "AutoRegCHK";
+            AutoRegCHK.Size = new Size(112, 29);
+            AutoRegCHK.TabIndex = 23;
+            AutoRegCHK.Text = "Auto Reg";
+            AutoRegCHK.UseVisualStyleBackColor = true;
             // 
             // tabPage6
             // 
@@ -639,6 +754,10 @@
             tabPage2.ResumeLayout(false);
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            systeminfoTab.ResumeLayout(false);
+            systeminfoTab.PerformLayout();
+            panel3.ResumeLayout(false);
+            panel3.PerformLayout();
             DebugTB.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -653,8 +772,7 @@
         private Button loadBUT;
         private Button ReadBUT;
         private TabPage tabPage3;
-        private TabPage tabPage4;
-        private TabPage tabPage5;
+        private TabPage systeminfoTab;
         private TabPage tabPage6;
         private TabPage tabPage7;
         private TabPage tabPage8;
@@ -665,7 +783,7 @@
         private Button readinfoBUT;
         private Label label2;
         private TextBox UIDTXT;
-        private CheckBox checkBox1;
+        private CheckBox VoiceRegCHK;
         private CheckBox silentemrCHK;
         private CheckBox emrgClrCHK;
         private CheckBox logsenableCHK;
@@ -699,5 +817,16 @@
         private TextBox svcportTXT;
         private Label label10;
         private TextBox semerprefixTXT;
+        private Panel panel3;
+        private CheckBox autoprovCHK;
+        private CheckBox AutoRegCHK;
+        private Label tnicaddr;
+        private TextBox tnicaddrTXT;
+        private Label tnicpt;
+        private TextBox tnicptTXT;
+        private Label label11;
+        private TextBox wasvcidTXT;
+        private Label label12;
+        private TextBox spnetIDTXT;
     }
 }

@@ -175,6 +175,15 @@ namespace ClosedSkyCPSWinForms
                         break;
 
                     case "Voice Reg":
+                        atvSettings.TryGetValue("Voice Reg", out string vrEnab);
+                        if (vrEnab.TrimStart() == "1")
+                        {
+                            VoiceRegCHK.Checked = true;
+                        }
+                        else
+                        {
+                            VoiceRegCHK.Checked = false;
+                        }
                         break;
 
                     case "Chan Scan Enable":
@@ -190,9 +199,27 @@ namespace ClosedSkyCPSWinForms
                         break;
 
                     case "Auto Reg":
+                        atvSettings.TryGetValue("Auto Reg", out string arEnab);
+                        if (arEnab.TrimStart() == "1")
+                        {
+                            AutoRegCHK.Checked = true;
+                        }
+                        else
+                        {
+                            AutoRegCHK.Checked = false;
+                        }
                         break;
 
                     case "Auto Provisioning":
+                        atvSettings.TryGetValue("Auto Provisioning", out string apEnab);
+                        if (apEnab.TrimStart() == "1")
+                        {
+                            autoprovCHK.Checked = true;
+                        }
+                        else
+                        {
+                            autoprovCHK.Checked = false;
+                        }
                         break;
 
                     case "Auto Online Cmd":
@@ -202,15 +229,23 @@ namespace ClosedSkyCPSWinForms
                         break;
 
                     case "TNIC Address":
+                        atvSettings.TryGetValue("TNIC Address", out string tnicaddr);
+                        tnicaddrTXT.Text = tnicaddr.TrimStart();
                         break;
 
                     case "TNIC Port":
+                        atvSettings.TryGetValue("TNIC Port", out string tnicpt);
+                        tnicptTXT.Text = tnicpt.TrimStart();
                         break;
 
                     case "Service Provider Network ID":
+                        atvSettings.TryGetValue("Service Provider Network ID", out string spnit);
+                        spnetIDTXT.Text = spnit.TrimStart();
                         break;
 
                     case "Wide Area Service ID":
+                        atvSettings.TryGetValue("Wide Area Service ID", out string wasvcid);
+                        wasvcidTXT.Text = wasvcid.TrimStart();
                         break;
 
                     case "Use DTR/DSR":
@@ -474,6 +509,15 @@ namespace ClosedSkyCPSWinForms
                         break;
 
                     case "Disable/Enable Radio Unit Monitor":
+                        atvSettings.TryGetValue("Disable/Enable Radio Unit Monitor", out string raduntmon);
+                        if (raduntmon.TrimStart() == "1")
+                        {
+                            radunitMON.Checked = true;
+                        }
+                        else
+                        {
+                            radunitMON.Checked = false;
+                        }
                         break;
 
                     case "Enables/Disables GPS during call receive":
@@ -513,7 +557,7 @@ namespace ClosedSkyCPSWinForms
                 try
                 {
                     using StreamWriter writer = new(saveFileDialog.FileName);
-                    
+
                     writer.WriteLine($"# Radio Settings Saved: {DateTime.Now}");
                     writer.WriteLine($"# ESN: {esnTXT.Text}");
                     writer.WriteLine($"# Total Settings: {atvSettings.Count}");
@@ -557,7 +601,7 @@ namespace ClosedSkyCPSWinForms
                 try
                 {
                     atvSettings.Clear();
-                    
+
                     using StreamReader reader = new(openFileDialog.FileName);
                     string? line;
                     int settingsLoaded = 0;
@@ -566,7 +610,7 @@ namespace ClosedSkyCPSWinForms
                     while ((line = reader.ReadLine()) is not null)
                     {
                         lineNumber++;
-                        
+
                         if (lineNumber == 2 && line.StartsWith("# ESN: "))
                         {
                             string esnValue = line[7..].Trim();
