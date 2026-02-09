@@ -490,10 +490,125 @@ namespace ClosedSkyCPSWinForms
 
         private void saveBUT_Click(object sender, EventArgs e)
         {
+            if (atvSettings.Count == 0)
+            {
+                MessageBox.Show(
+                    "No settings to save. Please read terminal info first.",
+                    "Save Settings",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            using SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "Settings Files (*.cfg)|*.cfg|All Files (*.*)|*.*",
+                DefaultExt = "cfg",
+                FileName = $"RadioSettings_{esnTXT.Text}_{DateTime.Now:yyyyMMdd_HHmmss}.cfg",
+                Title = "Save Radio Settings"
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    using StreamWriter writer = new(saveFileDialog.FileName);
+                    
+                    writer.WriteLine($"# Radio Settings Saved: {DateTime.Now}");
+                    writer.WriteLine($"# ESN: {esnTXT.Text}");
+                    writer.WriteLine($"# Total Settings: {atvSettings.Count}");
+                    writer.WriteLine();
+
+                    foreach (var kvp in atvSettings)
+                    {
+                        writer.WriteLine($"{kvp.Key}: {kvp.Value}");
+                    }
+
+                    debugRTB.AppendText($"[DEBUG] Settings saved successfully to: {saveFileDialog.FileName}\n");
+                    MessageBox.Show(
+                        $"Settings saved successfully!\n\nFile: {saveFileDialog.FileName}",
+                        "Save Successful",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    debugRTB.AppendText($"[ERROR] Failed to save settings: {ex.Message}\n");
+                    MessageBox.Show(
+                        $"Failed to save settings:\n{ex.Message}",
+                        "Save Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void loadBUT_Click(object sender, EventArgs e)
         {
+            using OpenFileDialog openFileDialog = new()
+            {
+                Filter = "Settings Files (*.cfg)|*.cfg|All Files (*.*)|*.*",
+                DefaultExt = "cfg",
+                Title = "Load Radio Settings"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    atvSettings.Clear();
+                    
+                    using StreamReader reader = new(openFileDialog.FileName);
+                    string? line;
+                    int settingsLoaded = 0;
+                    int lineNumber = 0;
+
+                    while ((line = reader.ReadLine()) is not null)
+                    {
+                        lineNumber++;
+                        
+                        if (lineNumber == 2 && line.StartsWith("# ESN: "))
+                        {
+                            string esnValue = line[7..].Trim();
+                            esnTXT.Text = esnValue;
+                            debugRTB.AppendText($"[DEBUG] ESN loaded: {esnValue}\n");
+                            continue;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+                        {
+                            continue;
+                        }
+
+                        int separatorIndex = line.IndexOf(": ");
+                        if (separatorIndex >= 0)
+                        {
+                            string key = line[..separatorIndex];
+                            string value = line[(separatorIndex + 2)..];
+                            atvSettings[key] = value;
+                            settingsLoaded++;
+                        }
+                    }
+
+                    LoadATVIntoUI();
+
+                    debugRTB.AppendText($"[DEBUG] Loaded {settingsLoaded} settings from: {openFileDialog.FileName}\n");
+                    MessageBox.Show(
+                        $"Settings loaded successfully!\n\nFile: {openFileDialog.FileName}\nSettings loaded: {settingsLoaded}",
+                        "Load Successful",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    debugRTB.AppendText($"[ERROR] Failed to load settings: {ex.Message}\n");
+                    MessageBox.Show(
+                        $"Failed to load settings:\n{ex.Message}",
+                        "Load Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }
