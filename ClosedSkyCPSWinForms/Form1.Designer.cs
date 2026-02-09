@@ -83,7 +83,7 @@
             tabPage6 = new TabPage();
             tabPage7 = new TabPage();
             tabPage8 = new TabPage();
-            tabPage9 = new TabPage();
+            resetradioTab = new TabPage();
             DebugTB = new TabPage();
             debugRTB = new RichTextBox();
             saveBUT = new Button();
@@ -92,6 +92,7 @@
             ReadBUT = new Button();
             readinfoBUT = new Button();
             ProgSetBUT = new Button();
+            nukeconfigBUT = new Button();
             RadioSettingsTAbCTL.SuspendLayout();
             tabPage1.SuspendLayout();
             panel1.SuspendLayout();
@@ -99,6 +100,7 @@
             panel2.SuspendLayout();
             systeminfoTab.SuspendLayout();
             panel3.SuspendLayout();
+            resetradioTab.SuspendLayout();
             DebugTB.SuspendLayout();
             SuspendLayout();
             // 
@@ -111,7 +113,7 @@
             RadioSettingsTAbCTL.Controls.Add(tabPage6);
             RadioSettingsTAbCTL.Controls.Add(tabPage7);
             RadioSettingsTAbCTL.Controls.Add(tabPage8);
-            RadioSettingsTAbCTL.Controls.Add(tabPage9);
+            RadioSettingsTAbCTL.Controls.Add(resetradioTab);
             RadioSettingsTAbCTL.Controls.Add(DebugTB);
             RadioSettingsTAbCTL.Location = new Point(12, 12);
             RadioSettingsTAbCTL.Name = "RadioSettingsTAbCTL";
@@ -645,15 +647,16 @@
             tabPage8.Text = "tabPage8";
             tabPage8.UseVisualStyleBackColor = true;
             // 
-            // tabPage9
+            // resetradioTab
             // 
-            tabPage9.Location = new Point(4, 34);
-            tabPage9.Name = "tabPage9";
-            tabPage9.Padding = new Padding(3);
-            tabPage9.Size = new Size(1223, 802);
-            tabPage9.TabIndex = 8;
-            tabPage9.Text = "tabPage9";
-            tabPage9.UseVisualStyleBackColor = true;
+            resetradioTab.Controls.Add(nukeconfigBUT);
+            resetradioTab.Location = new Point(4, 34);
+            resetradioTab.Name = "resetradioTab";
+            resetradioTab.Padding = new Padding(3);
+            resetradioTab.Size = new Size(1223, 802);
+            resetradioTab.TabIndex = 8;
+            resetradioTab.Text = "RESET RADIO";
+            resetradioTab.UseVisualStyleBackColor = true;
             // 
             // DebugTB
             // 
@@ -732,6 +735,19 @@
             ProgSetBUT.UseVisualStyleBackColor = true;
             ProgSetBUT.Click += ProgSetBUT_Click;
             // 
+            // nukeconfigBUT
+            // 
+            nukeconfigBUT.BackColor = Color.Red;
+            nukeconfigBUT.Font = new Font("Segoe UI Black", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nukeconfigBUT.ForeColor = SystemColors.ControlText;
+            nukeconfigBUT.Location = new Point(406, 238);
+            nukeconfigBUT.Name = "nukeconfigBUT";
+            nukeconfigBUT.Size = new Size(427, 227);
+            nukeconfigBUT.TabIndex = 0;
+            nukeconfigBUT.Text = "Nuke Radio Config";
+            nukeconfigBUT.UseVisualStyleBackColor = false;
+            nukeconfigBUT.Click += nukeconfigBUT_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -758,6 +774,7 @@
             systeminfoTab.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
+            resetradioTab.ResumeLayout(false);
             DebugTB.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -776,7 +793,7 @@
         private TabPage tabPage6;
         private TabPage tabPage7;
         private TabPage tabPage8;
-        private TabPage tabPage9;
+        private TabPage resetradioTab;
         private TabPage DebugTB;
         private Label label1;
         private TextBox esnTXT;
@@ -828,5 +845,6 @@
         private TextBox wasvcidTXT;
         private Label label12;
         private TextBox spnetIDTXT;
+        private Button nukeconfigBUT;
     }
 }

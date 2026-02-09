@@ -11,6 +11,7 @@ namespace ClosedSkyCPSWinForms
             pictureBox1 = new PictureBox();
             label1 = new Label();
             label2 = new Label();
+            githashLAB = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -46,6 +47,17 @@ namespace ClosedSkyCPSWinForms
             label2.TabIndex = 2;
             label2.Text = "OpenSky® is property of L3 Harris.. I dont own it";
             // 
+            // githashLAB
+            // 
+            githashLAB.AutoSize = true;
+            githashLAB.Font = new Font("Segoe UI", 7F);
+            githashLAB.ForeColor = Color.White;
+            githashLAB.Location = new Point(-1, 599);
+            githashLAB.Name = "githashLAB";
+            githashLAB.Size = new Size(86, 19);
+            githashLAB.TabIndex = 3;
+            githashLAB.Text = "GITCOMMIT";
+            // 
             // SplashScreen
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -53,6 +65,7 @@ namespace ClosedSkyCPSWinForms
             BackColor = Color.Black;
             BackgroundImageLayout = ImageLayout.Zoom;
             ClientSize = new Size(1009, 646);
+            Controls.Add(githashLAB);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(pictureBox1);
@@ -71,6 +84,7 @@ namespace ClosedSkyCPSWinForms
         private PictureBox pictureBox1;
         private Label label1;
         private Label label2;
+        private Label githashLAB;
     }
 }
 

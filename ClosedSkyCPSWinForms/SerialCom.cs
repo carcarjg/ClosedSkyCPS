@@ -25,6 +25,7 @@ namespace ClosedSkyCPSWinForms
     internal class SerialCom
     {
         private static SerialPort? _serialPort;
+
         private static SerialDataReceivedEventHandler? _dataReceivedHandler;
 
         internal static bool Connect()
@@ -196,7 +197,12 @@ namespace ClosedSkyCPSWinForms
                 return;
             }
 
-            _serialPort.DataReceived += (sender, e) =>
+            if (_dataReceivedHandler is not null)
+            {
+                _serialPort.DataReceived -= _dataReceivedHandler;
+            }
+
+            _dataReceivedHandler = (sender, e) =>
             {
                 try
                 {
@@ -234,6 +240,24 @@ namespace ClosedSkyCPSWinForms
                     }
                 }
             };
+
+            _serialPort.DataReceived += _dataReceivedHandler;
+        }
+
+        private static void PauseDataReceived()
+        {
+            if (_serialPort is not null && _dataReceivedHandler is not null)
+            {
+                _serialPort.DataReceived -= _dataReceivedHandler;
+            }
+        }
+
+        private static void ResumeDataReceived()
+        {
+            if (_serialPort is not null && _dataReceivedHandler is not null)
+            {
+                _serialPort.DataReceived += _dataReceivedHandler;
+            }
         }
 
         internal static List<string> AtVResponse { get; private set; } = [];
@@ -259,7 +283,7 @@ namespace ClosedSkyCPSWinForms
 
                 string? echoLine = _serialPort.ReadLine();
                 string? esnResponse = _serialPort.ReadLine();
-                
+
                 if (esnResponse is not null)
                 {
                     if (esnTextBox.InvokeRequired)
@@ -294,21 +318,21 @@ namespace ClosedSkyCPSWinForms
                             if (line is not null)
                             {
                                 string trimmedLine = line.Trim();
-                                
+
                                 if (firstLine && trimmedLine.Equals("at&v", StringComparison.OrdinalIgnoreCase))
                                 {
                                     firstLine = false;
                                     startTime = DateTime.Now;
                                     continue;
                                 }
-                                
+
                                 firstLine = false;
-                                
+
                                 if (trimmedLine.Equals("OK", StringComparison.OrdinalIgnoreCase))
                                 {
                                     break;
                                 }
-                                
+
                                 AtVResponse.Add(trimmedLine);
                                 startTime = DateTime.Now;
                             }
@@ -331,6 +355,135 @@ namespace ClosedSkyCPSWinForms
                 MessageBox.Show(
                     $"Failed to read terminal info: {ex.Message}",
                     "Communication Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        internal static bool SendCommandAndWaitForResponse(string command, string expectedResponse, int timeoutMs = 5000, RichTextBox? debugOutput = null)
+        {
+            if (_serialPort is null || !_serialPort.IsOpen)
+            {
+                MessageBox.Show(
+                    "Serial port is not connected. Please connect to a COM port first.",
+                    "Communication Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+
+            try
+            {
+                _serialPort.DiscardInBuffer();
+
+                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Sending: {command}\n"));
+                _serialPort.WriteLine(command);
+
+                DateTime startTime = DateTime.Now;
+                TimeSpan timeout = TimeSpan.FromMilliseconds(timeoutMs);
+
+                while ((DateTime.Now - startTime) < timeout)
+                {
+                    try
+                    {
+                        if (_serialPort.BytesToRead > 0)
+                        {
+                            string? line = _serialPort.ReadLine();
+                            if (line is not null)
+                            {
+                                string trimmedLine = line.Trim();
+                                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Received: {trimmedLine}\n"));
+
+                                if (trimmedLine.Equals(expectedResponse, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Got expected response: {expectedResponse}\n"));
+                                    return true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Thread.Sleep(50);
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        continue;
+                    }
+                }
+
+                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Timeout waiting for: {expectedResponse}\n"));
+                MessageBox.Show(
+                    $"Timeout waiting for response: {expectedResponse}\nCommand: {command}",
+                    "Communication Timeout",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Error: {ex.Message}\n"));
+                MessageBox.Show(
+                    $"Failed to send command:\n{ex.Message}",
+                    "Communication Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        internal static bool NukeConfiguration(RichTextBox debugOutput)
+        {
+            if (_serialPort is null || !_serialPort.IsOpen)
+            {
+                MessageBox.Show(
+                    "Serial port is not connected. Please connect to a COM port first.",
+                    "Communication Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+
+            try
+            {
+                PauseDataReceived();
+
+                debugOutput.Invoke(() => debugOutput.AppendText("[NUKE] Starting configuration erase sequence...\n"));
+                debugOutput.Invoke(() => debugOutput.AppendText("[NUKE] Sending atz-1 (radio may take 15-20 seconds to respond)...\n"));
+
+                if (!SendCommandAndWaitForResponse("atz-1", "BS", 30000, debugOutput))
+                {
+                    ResumeDataReceived();
+                    return false;
+                }
+
+                Thread.Sleep(500);
+
+                if (!SendCommandAndWaitForResponse("**ERASERECORDMODE9", "OK", 15000, debugOutput))
+                {
+                    ResumeDataReceived();
+                    return false;
+                }
+
+                Thread.Sleep(500);
+
+                debugOutput.Invoke(() => debugOutput.AppendText("[NUKE] Sending final reset command: atz9\n"));
+                _serialPort.WriteLine("atz9");
+                Thread.Sleep(1000);
+
+                debugOutput.Invoke(() => debugOutput.AppendText("[NUKE] Configuration erase completed successfully!\n"));
+
+                ResumeDataReceived();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ResumeDataReceived();
+                debugOutput.Invoke(() => debugOutput.AppendText($"[NUKE] Fatal error: {ex.Message}\n"));
+                MessageBox.Show(
+                    $"Configuration erase failed:\n{ex.Message}",
+                    "Nuke Config Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
                 return false;

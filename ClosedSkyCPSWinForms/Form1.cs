@@ -1,4 +1,4 @@
-// %%%%%%    @%%%%%@
+﻿// %%%%%%    @%%%%%@
 //%%%%%%%%   %%%%%%%@
 //@%%%%%%%@  %%%%%%%%%        @@      @@  @@@      @@@ @@@     @@@ @@@@@@@@@@   @@@@@@@@@
 //%%%%%%%%@ @%%%%%%%%       @@@@@   @@@@ @@@@@   @@@@ @@@@   @@@@ @@@@@@@@@@@@@@@@@@@@@@@ @@@@
@@ -725,6 +725,61 @@ namespace ClosedSkyCPSWinForms
             catch
             {
                 return false;
+            }
+        }
+
+        private void nukeconfigBUT_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "WARNING: This will ERASE ALL CONFIGURATION from the radio!\n\n" +
+                "This action cannot be undone. The radio will be reset to factory defaults.\n\n" +
+                "Are you absolutely sure you want to continue?",
+                "Nuke Configuration - Confirmation Required",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (result != DialogResult.Yes)
+            {
+                debugRTB.AppendText("[NUKE] Configuration erase cancelled by user.\n");
+                return;
+            }
+
+            if (!SerialCom.IsConnected)
+            {
+                debugRTB.AppendText("[ERROR] Cannot nuke config. Attempting to connect...\n");
+                if (!SerialCom.Connect())
+                {
+                    debugRTB.AppendText("[ERROR] Failed to connect. Cannot nuke configuration.\n");
+                    return;
+                }
+            }
+
+            debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+            debugRTB.AppendText("[NUKE] INITIATING CONFIGURATION ERASE...\n");
+            debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+
+            if (SerialCom.NukeConfiguration(debugRTB))
+            {
+                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                debugRTB.AppendText("[NUKE] CONFIGURATION SUCCESSFULLY ERASED!\n");
+                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                
+                MessageBox.Show(
+                    "Configuration has been successfully erased!\n\n" +
+                    "The radio has been reset to factory defaults.",
+                    "Nuke Configuration - Success",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                SerialCom.StartDataReceived(debugRTB);
+                debugRTB.AppendText("[DEBUG] Auto data reception re-enabled.\n");
+            }
+            else
+            {
+                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                debugRTB.AppendText("[NUKE] CONFIGURATION ERASE FAILED!\n");
+                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
             }
         }
     }
