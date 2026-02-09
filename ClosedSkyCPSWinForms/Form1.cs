@@ -1,4 +1,4 @@
-﻿// %%%%%%    @%%%%%@
+// %%%%%%    @%%%%%@
 //%%%%%%%%   %%%%%%%@
 //@%%%%%%%@  %%%%%%%%%        @@      @@  @@@      @@@ @@@     @@@ @@@@@@@@@@   @@@@@@@@@
 //%%%%%%%%@ @%%%%%%%%       @@@@@   @@@@ @@@@@   @@@@ @@@@   @@@@ @@@@@@@@@@@@@@@@@@@@@@@ @@@@
@@ -49,7 +49,7 @@ namespace ClosedSkyCPSWinForms
             debugRTB.AppendText($"[DEBUG] Sending command: {cmd}\n");
             if (SerialCom.IsConnected)
             {
-                SerialCom.SendCommand(cmd);
+                SendRadioCommand(cmd);
                 debugRTB.AppendText("[DEBUG] Command sent successfully.\n");
                 return true;
             }
@@ -597,6 +597,72 @@ namespace ClosedSkyCPSWinForms
             }
         }
 
+        private void UpdateSettingsFromUI()
+        {
+            debugRTB.AppendText("[DEBUG] Updating settings from UI...\n");
+
+            // Update settings from text boxes
+            if (!string.IsNullOrWhiteSpace(ipaTXT.Text))
+                atvSettings["IP Address"] = ipaTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(bipaTXT.Text))
+                atvSettings["Broadcast IP Address"] = bipaTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(sipaTXT.Text))
+                atvSettings["Service IP Address"] = sipaTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(svcportTXT.Text))
+                atvSettings["Service Port"] = svcportTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(UIDTXT.Text))
+                atvSettings["User ID"] = UIDTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(txpwrTXT.Text))
+                atvSettings["Transmit Power(dBm)"] = txpwrTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(tnicaddrTXT.Text))
+                atvSettings["TNIC Address"] = tnicaddrTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(tnicptTXT.Text))
+                atvSettings["TNIC Port"] = tnicptTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(spnetIDTXT.Text))
+                atvSettings["Service Provider Network ID"] = spnetIDTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(wasvcidTXT.Text))
+                atvSettings["Wide Area Service ID"] = wasvcidTXT.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(semerprefixTXT.Text))
+                atvSettings["Silent Emergency Prefix"] = $"\"{semerprefixTXT.Text.Trim()}\"";
+
+            // Update settings from checkboxes
+            atvSettings["Voice Reg"] = VoiceRegCHK.Checked ? "1" : "0";
+            atvSettings["Auto Reg"] = AutoRegCHK.Checked ? "1" : "0";
+            atvSettings["Auto Provisioning"] = autoprovCHK.Checked ? "1" : "0";
+            atvSettings["Emit Grant Tone"] = granttoneCHK.Checked ? "1" : "0";
+
+            if (IsFirmwareVersionAtLeast("16.0"))
+            {
+                atvSettings["Enable/Disable Logging"] = logsenableCHK.Checked ? "1" : "0";
+                atvSettings["Disable/Enable Radio Unit Monitor"] = radunitMON.Checked ? "1" : "0";
+                atvSettings["Disable/Enable All Call"] = allcallCHK.Checked ? "1" : "0";
+                atvSettings["Emergency Clearing Allowed"] = emrgClrCHK.Checked ? "1" : "0";
+                atvSettings["Emergency Scan Mode"] = emrgscnMdCHK.Checked ? "1" : "0";
+            }
+
+            if (IsFirmwareVersionAtLeast("20.0"))
+            {
+                atvSettings["AFC Enable"] = AFCenbCHK.Checked ? "1" : "0";
+            }
+
+            // Silent emergency requires special format
+            atvSettings["Enable Silent Emergency"] = silentemrCHK.Checked
+                ? "Saved: 1 Current: 1"
+                : "Saved: 0 Current: 0";
+
+            debugRTB.AppendText("[DEBUG] UI settings updated in dictionary.\n");
+        }
+
         private void saveBUT_Click(object sender, EventArgs e)
         {
             if (atvSettings.Count == 0)
@@ -698,7 +764,7 @@ namespace ClosedSkyCPSWinForms
 
                         esnTXT.Text = data.ESN;
                         LoadATVIntoUI();
-                        
+
                         // Reset all version-dependent controls to visible
                         logsenableCHK.Visible = true;
                         radunitMON.Visible = true;
@@ -706,7 +772,7 @@ namespace ClosedSkyCPSWinForms
                         emrgClrCHK.Visible = true;
                         emrgscnMdCHK.Visible = true;
                         AFCenbCHK.Visible = true;
-                        
+
                         // Hide controls based on firmware version
                         if (IsFirmwareVersionAtLeast("16.0") == false)
                         {
@@ -770,7 +836,7 @@ namespace ClosedSkyCPSWinForms
                         }
 
                         LoadATVIntoUI();
-                        
+
                         // Reset all version-dependent controls to visible
                         logsenableCHK.Visible = true;
                         radunitMON.Visible = true;
@@ -778,7 +844,7 @@ namespace ClosedSkyCPSWinForms
                         emrgClrCHK.Visible = true;
                         emrgscnMdCHK.Visible = true;
                         AFCenbCHK.Visible = true;
-                        
+
                         // Hide controls based on firmware version
                         if (IsFirmwareVersionAtLeast("16.0") == false)
                         {
@@ -861,15 +927,15 @@ namespace ClosedSkyCPSWinForms
                 }
             }
 
-            debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+            debugRTB.AppendText("[NUKE] ---------------------------------------\n");
             debugRTB.AppendText("[NUKE] INITIATING CONFIGURATION ERASE...\n");
-            debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+            debugRTB.AppendText("[NUKE] ---------------------------------------\n");
 
             if (SerialCom.NukeConfiguration(debugRTB))
             {
-                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                debugRTB.AppendText("[NUKE] ---------------------------------------\n");
                 debugRTB.AppendText("[NUKE] CONFIGURATION SUCCESSFULLY ERASED!\n");
-                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                debugRTB.AppendText("[NUKE] ---------------------------------------\n");
 
                 MessageBox.Show(
                     "Configuration has been successfully erased!\n\n" +
@@ -883,490 +949,506 @@ namespace ClosedSkyCPSWinForms
             }
             else
             {
-                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                debugRTB.AppendText("[NUKE] ---------------------------------------\n");
                 debugRTB.AppendText("[NUKE] CONFIGURATION ERASE FAILED!\n");
-                debugRTB.AppendText("[NUKE] ═══════════════════════════════════════\n");
+                debugRTB.AppendText("[NUKE] ---------------------------------------\n");
             }
         }
 
         private void WriteRadio()
         {
-            foreach (var kvp in atvSettings)
+            debugRTB.AppendText("[WRITE] Starting radio programming...\n");
+            debugRTB.AppendText("[WRITE] Pausing automatic data reception to prevent conflicts...\n");
+
+            SerialCom.PauseDataReceived();
+
+            try
             {
-                switch (kvp.Key)
+                foreach (var kvp in atvSettings)
                 {
-                    case "Transmit Power(dBm)":
-                        atvSettings.TryGetValue("Transmit Power(dBm)", out string txpw);
-                        SerialCom.SendCommand("at*****" + "" + txpw);
-                        break;
+                    switch (kvp.Key)
+                    {
+                        case "Transmit Power(dBm)":
+                            atvSettings.TryGetValue("Transmit Power(dBm)", out string txpw);
+                            SendRadioCommand($"at*****{txpw}");
+                            break;
 
-                    case "VCO Cal Value(DAC)":
-                        break;
+                        case "VCO Cal Value(DAC)":
+                            break;
 
-                    case "Voice Gain":
-                        break;
+                        case "Voice Gain":
+                            break;
 
-                    case "Sync Loss Report Mark":
-                        break;
+                        case "Sync Loss Report Mark":
+                            break;
 
-                    case "Shutdown Timer(Min)":
-                        break;
+                        case "Shutdown Timer(Min)":
+                            break;
 
-                    case "IP Address":
-                        atvSettings.TryGetValue("IP Address", out string ipa);
-                        SerialCom.SendCommand(@"at\s" + "" + ipa.TrimStart());
-                        break;
+                        case "IP Address":
+                            atvSettings.TryGetValue("IP Address", out string ipa);
+                            SendRadioCommand($@"at\s{ipa.TrimStart()}");
+                            break;
 
-                    case "Broadcast IP Address":
-                        atvSettings.TryGetValue("Broadcast IP Address", out string bipa);
-                        SerialCom.SendCommand(@"at\b" + "" + bipa.TrimStart());
-                        break;
+                        case "Broadcast IP Address":
+                            atvSettings.TryGetValue("Broadcast IP Address", out string bipa);
+                            SendRadioCommand($@"at\b{bipa.TrimStart()}");
+                            break;
 
-                    case "Service IP Address":
-                        atvSettings.TryGetValue("Service IP Address", out string sipa);
-                        SerialCom.SendCommand(@"at\u" + "" + sipa.TrimStart());
-                        break;
+                        case "Service IP Address":
+                            atvSettings.TryGetValue("Service IP Address", out string sipa);
+                            SendRadioCommand($@"at\u{sipa.TrimStart()}");
+                            break;
 
-                    case "Service Port":
-                        atvSettings.TryGetValue("Service Port", out string svpt);
-                        SerialCom.SendCommand(@"at\p" + "" + svpt.TrimStart());
-                        break;
+                        case "Service Port":
+                            atvSettings.TryGetValue("Service Port", out string svpt);
+                            SendRadioCommand($@"at\p{svpt.TrimStart()}");
+                            break;
 
-                    case "User ID":
-                        atvSettings.TryGetValue("User ID", out string uid);
-                        SerialCom.SendCommand(@"at@u" + "" + uid.TrimStart());
-                        break;
+                        case "User ID":
+                            atvSettings.TryGetValue("User ID", out string uid);
+                            SendRadioCommand($@"at@u{uid.TrimStart()}");
+                            break;
 
-                    case "Voice Reg":
-                        atvSettings.TryGetValue("Voice Reg", out string vrEnab);
-                        if (vrEnab.TrimStart() == "1")
-                        {
-                            SerialCom.SendCommand(@"at@vreg" + "" + 1);
-                        }
-                        else
-                        {
-                            SerialCom.SendCommand(@"at@vreg" + "" + 0);
-                        }
-                        break;
+                        case "Voice Reg":
+                            atvSettings.TryGetValue("Voice Reg", out string vrEnab);
+                            SendRadioCommand($@"at@vreg{(vrEnab.TrimStart() == "1" ? "1" : "0")}");
+                            break;
 
-                    case "Chan Scan Enable":
-                        atvSettings.TryGetValue("Chan Scan Enable", out string chscn);
-                        if (chscn.TrimStart() == "1")
-                        {
-                            SerialCom.SendCommand(@"atchanscan" + "" + 1);
-                        }
-                        else
-                        {
-                            SerialCom.SendCommand(@"atchanscan" + "" + 0);
-                        }
-                        break;
+                        case "Chan Scan Enable":
+                            atvSettings.TryGetValue("Chan Scan Enable", out string chscn);
+                            SendRadioCommand($@"atchanscan{(chscn.TrimStart() == "1" ? "1" : "0")}");
+                            break;
 
-                    case "Side Tone Level Code":
-                        break;
+                        case "Side Tone Level Code":
+                            break;
 
-                    case "Roam Tone Level Code":
-                        break;
+                        case "Roam Tone Level Code":
+                            break;
 
-                    case "Grant Tone Level Code":
-                        break;
+                        case "Grant Tone Level Code":
+                            break;
 
-                    case "Auto Reg":
-                        atvSettings.TryGetValue("Auto Reg", out string arEnab);
-                        if (arEnab.TrimStart() == "1")
-                        {
-                            SerialCom.SendCommand(@"at@ar" + "" + 1);
-                        }
-                        else
-                        {
-                            SerialCom.SendCommand(@"at@ar" + "" + 0);
-                        }
-                        break;
-
-                    case "Auto Provisioning":
-                        atvSettings.TryGetValue("Auto Provisioning", out string apEnab);
-                        if (apEnab.TrimStart() == "1")
-                        {
-                            SerialCom.SendCommand(@"at@ap" + "" + 1);
-                        }
-                        else
-                        {
-                            SerialCom.SendCommand(@"at@ap" + "" + 0);
-                        }
-                        break;
-
-                    case "Auto Online Cmd":
-                        break;
-
-                    case "Secondary Reg":
-                        break;
-
-                    case "TNIC Address":
-                        atvSettings.TryGetValue("TNIC Address", out string tnicaddr);
-                        SerialCom.SendCommand(@"at\tnica" + "" + tnicaddr.TrimStart());
-                        break;
-
-                    case "TNIC Port":
-                        atvSettings.TryGetValue("TNIC Port", out string tnicpt);
-                        SerialCom.SendCommand(@"at\tnicp" + "" + tnicpt.TrimStart());
-                        break;
-
-                    case "Service Provider Network ID":
-                        atvSettings.TryGetValue("Service Provider Network ID", out string spnit);
-
-                        //Do not write this.
-                        //SerialCom.SendCommand(@"at@spni" + "" + spnit.TrimStart());
-                        break;
-
-                    case "Wide Area Service ID":
-                        atvSettings.TryGetValue("Wide Area Service ID", out string wasvcid);
-
-                        //Do not write this.
-                        //SerialCom.SendCommand(@"at@wasi" + "" + wasvcid.TrimStart());
-                        break;
-
-                    case "Use DTR/DSR":
-                        break;
-
-                    case "Audio Output":
-                        break;
-
-                    case "Scan Mode":
-                        break;
-
-                    case "Post-Queue PTT Timer(Sec)":
-                        break;
-
-                    case "Emergency Tx Period(Sec)":
-                        break;
-
-                    case "Emergency Button Raise Delay(ms)":
-                        break;
-
-                    case "Save/Restore User Selected Profile":
-                        break;
-
-                    case "Alert Messages":
-                        break;
-
-                    case "Modem Escape Char":
-                        break;
-
-                    case "Voice Scale In":
-                        break;
-
-                    case "Voice Scale Out":
-                        break;
-
-                    case "Encrypt Data":
-                        break;
-
-                    case "Emit Grant Tone":
-                        atvSettings.TryGetValue("Emit Grant Tone", out string egtenab);
-                        if (egtenab.TrimStart() == "1")
-                        {
-                            SerialCom.SendCommand(@"at*grant_tone" + "" + 1);
-                        }
-                        else
-                        {
-                            SerialCom.SendCommand(@"at*grant_tone" + "" + 0);
-                        }
-                        break;
-
-                    case "Emergency Tone Level":
-                        break;
-
-                    case "Password Entry Type":
-                        break;
-
-                    case "Auto Lock Status":
-                        break;
-
-                    case "Emergency Dismiss Timer (min)":
-                        break;
-
-                    case "Deviation":
-                        break;
-
-                    case "User Mode":
-                        break;
-
-                    case "Contrast":
-                        break;
-
-                    case "Scan Mode Mask":
-                        break;
-
-                    case "Enable Silent Emergency":
-                        atvSettings.TryGetValue("Enable Silent Emergency", out string semrclren);
-                        semrclren = semrclren.Substring(8);
-                        if (semrclren.TrimStart() == "Saved: 1")
-                        {
-                            SerialCom.SendCommand(@"at@se_enable" + "" + 1);
-                        }
-                        else
-                        {
-                            SerialCom.SendCommand(@"at@se_enable" + "" + 0);
-                        }
-                        break;
-
-                    case "Silent Emergency Prefix":
-                        atvSettings.TryGetValue("Silent Emergency Prefix", out string semrpret);
-                        semrpret = semrpret.Replace("\"", "");
-
-                        SerialCom.SendCommand(@"se_prefix" + "" + semrpret.TrimStart());
-                        break;
-
-                    case "Display Global Profile VGs":
-                        break;
-
-                    case "Wide Area Communications Network ID":
-                        break;
-
-                    case "VNIC Protocol Range":
-                        break;
-
-                    case "Radio Appears Disabled":
-                        break;
-
-                    case "VNIC Security Policy":
-                        break;
-
-                    case "Out Of Range Tone Interval":
-                        break;
-
-                    case "Emergency Scan Mode":
-                        if (IsFirmwareVersionAtLeast("16.0"))
-                        {
-                            //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
-                            atvSettings.TryGetValue("Emergency Scan Mode", out string escnmodeena);
-                            if (escnmodeena.TrimStart() == "1")
+                        case "Auto Reg":
+                            atvSettings.TryGetValue("Auto Reg", out string arEnab);
+                            if (arEnab.TrimStart() == "1")
                             {
-                                SerialCom.SendCommand(@"at@emerg_scanmode" + "" + 1);
+                                SendRadioCommand(@"at@ar" + "" + 1);
                             }
                             else
                             {
-                                SerialCom.SendCommand(@"at@emerg_scanmode" + "" + 0);
+                                SendRadioCommand(@"at@ar" + "" + 0);
                             }
-                        }
-                        else
-                        {
-                            debugRTB.AppendText("[WARN] Skipping Emergency Scan Mode - requires OTP R16.0 or higher\n");
-                        }
-                        break;
+                            break;
 
-                    case "VTAC Connection Mode":
-                        break;
-
-                    case "Mandown Switch Quiet Delay":
-                        break;
-
-                    case "Mandown Switch Loud Delay":
-                        break;
-
-                    case "Emergency Clearing Allowed":
-
-                        if (IsFirmwareVersionAtLeast("16.0"))
-                        {
-                            //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
-                            atvSettings.TryGetValue("Emergency Clearing Allowed", out string emrclren);
-                            if (emrclren.TrimStart() == "1")
+                        case "Auto Provisioning":
+                            atvSettings.TryGetValue("Auto Provisioning", out string apEnab);
+                            if (apEnab.TrimStart() == "1")
                             {
-                                SerialCom.SendCommand(@"at@emerg_clear" + "" + 1);
+                                SendRadioCommand(@"at@ap" + "" + 1);
                             }
                             else
                             {
-                                SerialCom.SendCommand(@"at@emerg_clear" + "" + 0);
+                                SendRadioCommand(@"at@ap" + "" + 0);
                             }
-                        }
-                        else
-                        {
-                            debugRTB.AppendText("[WARN] Skipping Emergency Clearing Allowed - requires OTP R16.0 or higher\n");
-                        }
-                        break;
+                            break;
 
-                    case "Out Of Range Tone Level Code":
-                        break;
+                        case "Auto Online Cmd":
+                            break;
 
-                    case "Save/Restore User Settings":
-                        break;
+                        case "Secondary Reg":
+                            break;
 
-                    case "Enabled Client Modes":
-                        break;
+                        case "TNIC Address":
+                            atvSettings.TryGetValue("TNIC Address", out string tnicaddr);
+                            SendRadioCommand(@"at\tnica" + "" + tnicaddr.TrimStart());
+                            break;
 
-                    case "Announcement TG Profile":
-                        break;
+                        case "TNIC Port":
+                            atvSettings.TryGetValue("TNIC Port", out string tnicpt);
+                            SendRadioCommand(@"at\tnicp" + "" + tnicpt.TrimStart());
+                            break;
 
-                    case "SOI Personality":
-                        break;
+                        case "Service Provider Network ID":
+                            atvSettings.TryGetValue("Service Provider Network ID", out string spnit);
 
-                    case "Disable/Enable All Call":
+                            //Do not write this.
+                            //SendRadioCommand(@"at@spni" + "" + spnit.TrimStart());
+                            break;
 
-                        if (IsFirmwareVersionAtLeast("16.0"))
-                        {
-                            //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
-                            atvSettings.TryGetValue("Disable/Enable All Call", out string allcallen);
-                            if (allcallen.TrimStart() == "1")
+                        case "Wide Area Service ID":
+                            atvSettings.TryGetValue("Wide Area Service ID", out string wasvcid);
+
+                            //Do not write this.
+                            //SendRadioCommand(@"at@wasi" + "" + wasvcid.TrimStart());
+                            break;
+
+                        case "Use DTR/DSR":
+                            break;
+
+                        case "Audio Output":
+                            break;
+
+                        case "Scan Mode":
+                            break;
+
+                        case "Post-Queue PTT Timer(Sec)":
+                            break;
+
+                        case "Emergency Tx Period(Sec)":
+                            break;
+
+                        case "Emergency Button Raise Delay(ms)":
+                            break;
+
+                        case "Save/Restore User Selected Profile":
+                            break;
+
+                        case "Alert Messages":
+                            break;
+
+                        case "Modem Escape Char":
+                            break;
+
+                        case "Voice Scale In":
+                            break;
+
+                        case "Voice Scale Out":
+                            break;
+
+                        case "Encrypt Data":
+                            break;
+
+                        case "Emit Grant Tone":
+                            atvSettings.TryGetValue("Emit Grant Tone", out string egtenab);
+                            if (egtenab.TrimStart() == "1")
                             {
-                                SerialCom.SendCommand(@"at@allcall" + "" + 1);
+                                SendRadioCommand(@"at*grant_tone" + "" + 1);
                             }
                             else
                             {
-                                SerialCom.SendCommand(@"at@allcall" + "" + 0);
+                                SendRadioCommand(@"at*grant_tone" + "" + 0);
                             }
-                        }
-                        else
-                        {
-                            debugRTB.AppendText("[WARN] Skipping Disable/Enable All Call - requires OTP R16.0 or higher\n");
-                        }
-                        break;
+                            break;
 
-                    case "Scan Priority Mode":
-                        break;
+                        case "Emergency Tone Level":
+                            break;
 
-                    case "Primary Mic Sensitivity":
-                        break;
+                        case "Password Entry Type":
+                            break;
 
-                    case "Aux Mic Sensitivity":
-                        break;
+                        case "Auto Lock Status":
+                            break;
 
-                    case "Input Audio Limiter":
-                        break;
+                        case "Emergency Dismiss Timer (min)":
+                            break;
 
-                    case "Output Audio Limiter":
-                        break;
+                        case "Deviation":
+                            break;
 
-                    case "Noise Gate":
-                        break;
+                        case "User Mode":
+                            break;
 
-                    case "ID Request Timer (0.1s increments)":
-                        break;
+                        case "Contrast":
+                            break;
 
-                    case "Vocoder Mode":
-                        break;
+                        case "Scan Mode Mask":
+                            break;
 
-                    case "Enable Low Pass Filter":
-                        break;
-
-                    case "Enable AMBE Noise Sup":
-                        break;
-
-                    case "AMBE Noise Sup Level":
-                        break;
-
-                    case "Enable AMBE Tone Detection":
-                        break;
-
-                    case "Audio Record":
-                        break;
-
-                    case "MDP Type":
-                        break;
-
-                    case "Enabled Keypad Easy Buttons":
-                        break;
-
-                    case "AGC Enable":
-                        break;
-
-                    case "AGC Max Gain (dB)":
-                        break;
-
-                    case "AGC Decay (ms)":
-                        break;
-
-                    case "AGC Target Level (dBFS)":
-                        break;
-
-                    case "AGC Min Gain (dB)":
-                        break;
-
-                    case "DSP Config":
-                        break;
-
-                    case "Select Output Volume Table":
-                        break;
-
-                    case "Minimum Volume":
-                        break;
-
-                    case "ADC High Pass Filter Config (Hz)":
-                        break;
-
-                    case "Enable/Disable Logging":
-                        if (IsFirmwareVersionAtLeast("16.0"))
-                        {
-                            //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
-                            atvSettings.TryGetValue("Enable/Disable Logging", out string lgenab);
-                            if (lgenab.TrimStart() == "1")
+                        case "Enable Silent Emergency":
+                            atvSettings.TryGetValue("Enable Silent Emergency", out string semrclren);
+                            semrclren = semrclren.Substring(8);
+                            if (semrclren.TrimStart() == "Saved: 1")
                             {
-                                SerialCom.SendCommand(@"at@logs_enable" + "" + 1);
+                                SendRadioCommand(@"at@se_enable" + "" + 1);
                             }
                             else
                             {
-                                SerialCom.SendCommand(@"at@logs_enable" + "" + 0);
+                                SendRadioCommand(@"at@se_enable" + "" + 0);
                             }
-                        }
-                        else
-                        {
-                            debugRTB.AppendText("[WARN] Skipping Enable/Disable Logging - requires OTP R16.0 or higher\n");
-                        }
-                        break;
+                            break;
 
-                    case "Serial Flow Control":
-                        break;
+                        case "Silent Emergency Prefix":
+                            atvSettings.TryGetValue("Silent Emergency Prefix", out string semrpret);
+                            semrpret = semrpret.Replace("\"", "");
 
-                    case "Voice Key Policy":
-                        break;
+                            SendRadioCommand(@"se_prefix" + "" + semrpret.TrimStart());
+                            break;
 
-                    case "Disable/Enable Radio Unit Monitor":
-                        if (IsFirmwareVersionAtLeast("16.0"))
-                        {
-                            //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
-                            atvSettings.TryGetValue("Disable/Enable Radio Unit Monitor", out string raduntmon);
-                            if (raduntmon.TrimStart() == "1")
+                        case "Display Global Profile VGs":
+                            break;
+
+                        case "Wide Area Communications Network ID":
+                            break;
+
+                        case "VNIC Protocol Range":
+                            break;
+
+                        case "Radio Appears Disabled":
+                            break;
+
+                        case "VNIC Security Policy":
+                            break;
+
+                        case "Out Of Range Tone Interval":
+                            break;
+
+                        case "Emergency Scan Mode":
+                            if (IsFirmwareVersionAtLeast("16.0"))
                             {
-                                SerialCom.SendCommand(@"at*rum_enable" + "" + 1);
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("Emergency Scan Mode", out string escnmodeena);
+                                if (escnmodeena.TrimStart() == "1")
+                                {
+                                    SendRadioCommand(@"at@emerg_scanmode" + "" + 1);
+                                }
+                                else
+                                {
+                                    SendRadioCommand(@"at@emerg_scanmode" + "" + 0);
+                                }
                             }
                             else
                             {
-                                SerialCom.SendCommand(@"at*rum_enable" + "" + 0);
+                                debugRTB.AppendText("[WARN] Skipping Emergency Scan Mode - requires OTP R16.0 or higher\n");
                             }
-                        }
-                        else
-                        {
-                            debugRTB.AppendText("[WARN] Skipping Disable/Enable Radio Unit Monitor - requires OTP R16.0 or higher\n");
-                        }
-                        break;
+                            break;
 
-                    case "Enables/Disables GPS during call receive":
-                        break;
+                        case "VTAC Connection Mode":
+                            break;
 
-                    case "A/B/C Switch Mode":
-                        break;
+                        case "Mandown Switch Quiet Delay":
+                            break;
 
-                    case "Verbosity":
-                        break;
+                        case "Mandown Switch Loud Delay":
+                            break;
 
-                    case "AFC Enable":
-                        if (IsFirmwareVersionAtLeast("20.0"))
-                        {
-                            //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
-                            atvSettings.TryGetValue("AFC Enable", out string afcenab);
-                        }
-                        else
-                        {
-                            debugRTB.AppendText("[WARN] Skipping AFC Enable - requires OTP R20.0 or higher\n");
-                        }
-                        break;
+                        case "Emergency Clearing Allowed":
+
+                            if (IsFirmwareVersionAtLeast("16.0"))
+                            {
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("Emergency Clearing Allowed", out string emrclren);
+                                if (emrclren.TrimStart() == "1")
+                                {
+                                    SendRadioCommand(@"at@emerg_clear" + "" + 1);
+                                }
+                                else
+                                {
+                                    SendRadioCommand(@"at@emerg_clear" + "" + 0);
+                                }
+                            }
+                            else
+                            {
+                                debugRTB.AppendText("[WARN] Skipping Emergency Clearing Allowed - requires OTP R16.0 or higher\n");
+                            }
+                            break;
+
+                        case "Out Of Range Tone Level Code":
+                            break;
+
+                        case "Save/Restore User Settings":
+                            break;
+
+                        case "Enabled Client Modes":
+                            break;
+
+                        case "Announcement TG Profile":
+                            break;
+
+                        case "SOI Personality":
+                            break;
+
+                        case "Disable/Enable All Call":
+
+                            if (IsFirmwareVersionAtLeast("16.0"))
+                            {
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("Disable/Enable All Call", out string allcallen);
+                                if (allcallen.TrimStart() == "1")
+                                {
+                                    SendRadioCommand(@"at@allcall" + "" + 1);
+                                }
+                                else
+                                {
+                                    SendRadioCommand(@"at@allcall" + "" + 0);
+                                }
+                            }
+                            else
+                            {
+                                debugRTB.AppendText("[WARN] Skipping Disable/Enable All Call - requires OTP R16.0 or higher\n");
+                            }
+                            break;
+
+                        case "Scan Priority Mode":
+                            break;
+
+                        case "Primary Mic Sensitivity":
+                            break;
+
+                        case "Aux Mic Sensitivity":
+                            break;
+
+                        case "Input Audio Limiter":
+                            break;
+
+                        case "Output Audio Limiter":
+                            break;
+
+                        case "Noise Gate":
+                            break;
+
+                        case "ID Request Timer (0.1s increments)":
+                            break;
+
+                        case "Vocoder Mode":
+                            break;
+
+                        case "Enable Low Pass Filter":
+                            break;
+
+                        case "Enable AMBE Noise Sup":
+                            break;
+
+                        case "AMBE Noise Sup Level":
+                            break;
+
+                        case "Enable AMBE Tone Detection":
+                            break;
+
+                        case "Audio Record":
+                            break;
+
+                        case "MDP Type":
+                            break;
+
+                        case "Enabled Keypad Easy Buttons":
+                            break;
+
+                        case "AGC Enable":
+                            break;
+
+                        case "AGC Max Gain (dB)":
+                            break;
+
+                        case "AGC Decay (ms)":
+                            break;
+
+                        case "AGC Target Level (dBFS)":
+                            break;
+
+                        case "AGC Min Gain (dB)":
+                            break;
+
+                        case "DSP Config":
+                            break;
+
+                        case "Select Output Volume Table":
+                            break;
+
+                        case "Minimum Volume":
+                            break;
+
+                        case "ADC High Pass Filter Config (Hz)":
+                            break;
+
+                        case "Enable/Disable Logging":
+                            if (IsFirmwareVersionAtLeast("16.0"))
+                            {
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("Enable/Disable Logging", out string lgenab);
+                                if (lgenab.TrimStart() == "1")
+                                {
+                                    SendRadioCommand(@"at@logs_enable" + "" + 1);
+                                }
+                                else
+                                {
+                                    SendRadioCommand(@"at@logs_enable" + "" + 0);
+                                }
+                            }
+                            else
+                            {
+                                debugRTB.AppendText("[WARN] Skipping Enable/Disable Logging - requires OTP R16.0 or higher\n");
+                            }
+                            break;
+
+                        case "Serial Flow Control":
+                            break;
+
+                        case "Voice Key Policy":
+                            break;
+
+                        case "Disable/Enable Radio Unit Monitor":
+                            if (IsFirmwareVersionAtLeast("16.0"))
+                            {
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("Disable/Enable Radio Unit Monitor", out string raduntmon);
+                                if (raduntmon.TrimStart() == "1")
+                                {
+                                    SendRadioCommand(@"at*rum_enable" + "" + 1);
+                                }
+                                else
+                                {
+                                    SendRadioCommand(@"at*rum_enable" + "" + 0);
+                                }
+                            }
+                            else
+                            {
+                                debugRTB.AppendText("[WARN] Skipping Disable/Enable Radio Unit Monitor - requires OTP R16.0 or higher\n");
+                            }
+                            break;
+
+                        case "Enables/Disables GPS during call receive":
+                            break;
+
+                        case "A/B/C Switch Mode":
+                            break;
+
+                        case "Verbosity":
+                            break;
+
+                        case "AFC Enable":
+                            if (IsFirmwareVersionAtLeast("20.0"))
+                            {
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("AFC Enable", out string afcenab);
+                            }
+                            else
+                            {
+                                debugRTB.AppendText("[WARN] Skipping AFC Enable - requires OTP R20.0 or higher\n");
+                            }
+                            break;
+                    }
                 }
+
+                debugRTB.AppendText("[WRITE] Saving settings to NVRAM...\n");
+                SerialCom.SendCommandAndWaitForResponse("at&w", "OK", 5000, debugRTB);
+                Thread.Sleep(500);
+                debugRTB.AppendText("[WRITE] Resetting radio...\n");
+                SerialCom.SendCommand("atz");
             }
-            SerialCom.SendCommand(@"at&w");
-            SerialCom.SendCommand(@"atz");
+            catch (Exception ex)
+            {
+                debugRTB.AppendText($"[WRITE] Error during programming: {ex.Message}\n");
+            }
+            finally
+            {
+                debugRTB.AppendText("[WRITE] Resuming automatic data reception...\n");
+                SerialCom.ResumeDataReceived();
+                debugRTB.AppendText("[WRITE] Radio programming completed.\n");
+            }
+        }
+
+        private bool SendRadioCommand(string command)
+        {
+            return SerialCom.SendCommandAndWaitForResponse(command, "OK", 5000, debugRTB);
         }
 
         private void writeBUT_Click(object sender, EventArgs e)
         {
-            debugRTB.AppendText("[ERROR] Failed to read terminal info.\n");
+            // Capture UI changes before writing to radio
+            UpdateSettingsFromUI();
+
+            debugRTB.AppendText("[WRITE] Starting radio write operation...\n");
             WriteRadio();
         }
     }

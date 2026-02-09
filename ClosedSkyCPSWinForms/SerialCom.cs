@@ -244,7 +244,7 @@ namespace ClosedSkyCPSWinForms
             _serialPort.DataReceived += _dataReceivedHandler;
         }
 
-        private static void PauseDataReceived()
+        internal static void PauseDataReceived()
         {
             if (_serialPort is not null && _dataReceivedHandler is not null)
             {
@@ -252,7 +252,7 @@ namespace ClosedSkyCPSWinForms
             }
         }
 
-        private static void ResumeDataReceived()
+        internal static void ResumeDataReceived()
         {
             if (_serialPort is not null && _dataReceivedHandler is not null)
             {
@@ -382,6 +382,7 @@ namespace ClosedSkyCPSWinForms
 
                 DateTime startTime = DateTime.Now;
                 TimeSpan timeout = TimeSpan.FromMilliseconds(timeoutMs);
+                bool echoSkipped = false;
 
                 while ((DateTime.Now - startTime) < timeout)
                 {
@@ -394,6 +395,13 @@ namespace ClosedSkyCPSWinForms
                             {
                                 string trimmedLine = line.Trim();
                                 debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Received: {trimmedLine}\n"));
+
+                                if (!echoSkipped && trimmedLine.Equals(command.Trim(), StringComparison.OrdinalIgnoreCase))
+                                {
+                                    debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Skipping echo\n"));
+                                    echoSkipped = true;
+                                    continue;
+                                }
 
                                 if (trimmedLine.Equals(expectedResponse, StringComparison.OrdinalIgnoreCase))
                                 {
