@@ -50,6 +50,9 @@ namespace ClosedSkyCPSWinForms
             string gitHash = GetGitCommitHash();
             githashLAB.Text = gitHash;
             
+            // Set version from VersionInfo
+            label3.Text = $"Version: {VersionInfo.GetVersion()}";
+            
             closeTimer = new System.Windows.Forms.Timer
             {
                 Interval = 4670

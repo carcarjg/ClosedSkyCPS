@@ -12,6 +12,7 @@ namespace ClosedSkyCPSWinForms
             label1 = new Label();
             label2 = new Label();
             githashLAB = new Label();
+            label3 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -58,6 +59,17 @@ namespace ClosedSkyCPSWinForms
             githashLAB.TabIndex = 3;
             githashLAB.Text = "GITCOMMIT";
             // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 9F);
+            label3.ForeColor = Color.White;
+            label3.Location = new Point(840, 610);
+            label3.Name = "label3";
+            label3.Size = new Size(157, 25);
+            label3.TabIndex = 4;
+            label3.Text = "Version: CSP 01A1";
+            // 
             // SplashScreen
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -65,6 +77,7 @@ namespace ClosedSkyCPSWinForms
             BackColor = Color.Black;
             BackgroundImageLayout = ImageLayout.Zoom;
             ClientSize = new Size(1009, 646);
+            Controls.Add(label3);
             Controls.Add(githashLAB);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -85,6 +98,7 @@ namespace ClosedSkyCPSWinForms
         private Label label1;
         private Label label2;
         private Label githashLAB;
+        private Label label3;
     }
 }
 
