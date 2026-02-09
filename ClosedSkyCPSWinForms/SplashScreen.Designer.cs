@@ -52,7 +52,7 @@ namespace ClosedSkyCPSWinForms
             githashLAB.AutoSize = true;
             githashLAB.Font = new Font("Segoe UI", 7F);
             githashLAB.ForeColor = Color.White;
-            githashLAB.Location = new Point(-1, 599);
+            githashLAB.Location = new Point(-1, 623);
             githashLAB.Name = "githashLAB";
             githashLAB.Size = new Size(86, 19);
             githashLAB.TabIndex = 3;

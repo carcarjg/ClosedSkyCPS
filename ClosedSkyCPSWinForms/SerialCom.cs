@@ -377,7 +377,7 @@ namespace ClosedSkyCPSWinForms
             {
                 _serialPort.DiscardInBuffer();
 
-                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Sending: {command}\n"));
+                debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Sending: {command}\n"));
                 _serialPort.WriteLine(command);
 
                 DateTime startTime = DateTime.Now;
@@ -393,11 +393,11 @@ namespace ClosedSkyCPSWinForms
                             if (line is not null)
                             {
                                 string trimmedLine = line.Trim();
-                                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Received: {trimmedLine}\n"));
+                                debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Received: {trimmedLine}\n"));
 
                                 if (trimmedLine.Equals(expectedResponse, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Got expected response: {expectedResponse}\n"));
+                                    debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Got expected response: {expectedResponse}\n"));
                                     return true;
                                 }
                             }
@@ -413,7 +413,7 @@ namespace ClosedSkyCPSWinForms
                     }
                 }
 
-                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Timeout waiting for: {expectedResponse}\n"));
+                debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Timeout waiting for: {expectedResponse}\n"));
                 MessageBox.Show(
                     $"Timeout waiting for response: {expectedResponse}\nCommand: {command}",
                     "Communication Timeout",
@@ -423,7 +423,7 @@ namespace ClosedSkyCPSWinForms
             }
             catch (Exception ex)
             {
-                debugOutput?.Invoke(() => debugOutput.AppendText($"[NUKE] Error: {ex.Message}\n"));
+                debugOutput?.Invoke(() => debugOutput.AppendText($"[RS232] Error: {ex.Message}\n"));
                 MessageBox.Show(
                     $"Failed to send command:\n{ex.Message}",
                     "Communication Error",
