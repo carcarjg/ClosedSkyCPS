@@ -114,6 +114,7 @@ namespace ClosedSkyCPSWinForms
                 if (IsFirmwareVersionAtLeast("20.0") == false)
                 {
                     AFCenbCHK.Visible = false;
+                    agcCHK.Visible = false;
                 }
             }
             else
@@ -798,6 +799,7 @@ namespace ClosedSkyCPSWinForms
                         if (IsFirmwareVersionAtLeast("20.0") == false)
                         {
                             AFCenbCHK.Visible = false;
+                            agcCHK.Visible = false;
                         }
                         debugRTB.AppendText($"[DEBUG] Loaded {atvSettings.Count} encrypted settings from: {openFileDialog.FileName}\n");
                         debugRTB.AppendText($"[DEBUG] ESN: {data.ESN}\n");
@@ -872,6 +874,7 @@ namespace ClosedSkyCPSWinForms
                         if (IsFirmwareVersionAtLeast("20.0") == false)
                         {
                             AFCenbCHK.Visible = false;
+                            agcCHK.Visible = false;
                         }
                         debugRTB.AppendText($"[DEBUG] Loaded {settingsLoaded} settings from: {openFileDialog.FileName}\n");
                         MessageBox.Show(
@@ -1187,7 +1190,7 @@ namespace ClosedSkyCPSWinForms
                             atvSettings.TryGetValue("Silent Emergency Prefix", out string semrpret);
                             semrpret = semrpret.Replace("\"", "");
 
-                            SendRadioCommand(@"se_prefix" + "" + semrpret.TrimStart());
+                            //SendRadioCommand(@"se_prefix" + "" + semrpret.TrimStart());
                             break;
 
                         case "Display Global Profile VGs":
@@ -1340,9 +1343,9 @@ namespace ClosedSkyCPSWinForms
                             break;
 
                         case "AGC Enable":
-                            if (IsFirmwareVersionAtLeast("16.0"))
+                            if (IsFirmwareVersionAtLeast("20.0"))
                             {
-                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                //This CMD only runs on fw newer than OTP R20.0. If the radio is older just ignore it
                                 atvSettings.TryGetValue("AGC Enable", out string agcenab);
                                 if (agcenab.TrimStart() == "1")
                                 {
@@ -1355,7 +1358,7 @@ namespace ClosedSkyCPSWinForms
                             }
                             else
                             {
-                                debugRTB.AppendText("[WARN] Skipping AGC Enable - requires OTP R16.0 or higher\n");
+                                debugRTB.AppendText("[WARN] Skipping AGC Enable - requires OTP R20.0 or higher\n");
                             }
                             break;
 
