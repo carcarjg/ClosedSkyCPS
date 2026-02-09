@@ -109,6 +109,7 @@ namespace ClosedSkyCPSWinForms
                     allcallCHK.Visible = false;
                     emrgClrCHK.Visible = false;
                     emrgscnMdCHK.Visible = false;
+                    agcCHK.Visible = false;
                 }
                 if (IsFirmwareVersionAtLeast("20.0") == false)
                 {
@@ -517,6 +518,15 @@ namespace ClosedSkyCPSWinForms
                         break;
 
                     case "AGC Enable":
+                        atvSettings.TryGetValue("AGC Enable", out string agcen);
+                        if (agcen.TrimStart() == "1")
+                        {
+                            logsenableCHK.Checked = true;
+                        }
+                        else
+                        {
+                            logsenableCHK.Checked = false;
+                        }
                         break;
 
                     case "AGC Max Gain (dB)":
@@ -648,6 +658,7 @@ namespace ClosedSkyCPSWinForms
                 atvSettings["Disable/Enable All Call"] = allcallCHK.Checked ? "1" : "0";
                 atvSettings["Emergency Clearing Allowed"] = emrgClrCHK.Checked ? "1" : "0";
                 atvSettings["Emergency Scan Mode"] = emrgscnMdCHK.Checked ? "1" : "0";
+                atvSettings["AGC Enable"] = agcCHK.Checked ? "1" : "0";
             }
 
             if (IsFirmwareVersionAtLeast("20.0"))
@@ -772,6 +783,7 @@ namespace ClosedSkyCPSWinForms
                         emrgClrCHK.Visible = true;
                         emrgscnMdCHK.Visible = true;
                         AFCenbCHK.Visible = true;
+                        agcCHK.Visible = true;
 
                         // Hide controls based on firmware version
                         if (IsFirmwareVersionAtLeast("16.0") == false)
@@ -781,6 +793,7 @@ namespace ClosedSkyCPSWinForms
                             allcallCHK.Visible = false;
                             emrgClrCHK.Visible = false;
                             emrgscnMdCHK.Visible = false;
+                            agcCHK.Visible = false;
                         }
                         if (IsFirmwareVersionAtLeast("20.0") == false)
                         {
@@ -844,6 +857,7 @@ namespace ClosedSkyCPSWinForms
                         emrgClrCHK.Visible = true;
                         emrgscnMdCHK.Visible = true;
                         AFCenbCHK.Visible = true;
+                        agcCHK.Visible = true;
 
                         // Hide controls based on firmware version
                         if (IsFirmwareVersionAtLeast("16.0") == false)
@@ -853,6 +867,7 @@ namespace ClosedSkyCPSWinForms
                             allcallCHK.Visible = false;
                             emrgClrCHK.Visible = false;
                             emrgscnMdCHK.Visible = false;
+                            agcCHK.Visible = false;
                         }
                         if (IsFirmwareVersionAtLeast("20.0") == false)
                         {
@@ -1325,6 +1340,23 @@ namespace ClosedSkyCPSWinForms
                             break;
 
                         case "AGC Enable":
+                            if (IsFirmwareVersionAtLeast("16.0"))
+                            {
+                                //This CMD only runs on fw newer than OTP R16.0. If the radio is older just ignore it
+                                atvSettings.TryGetValue("AGC Enable", out string agcenab);
+                                if (agcenab.TrimStart() == "1")
+                                {
+                                    SendRadioCommand(@"at@exths_agc_enable" + "" + 1);
+                                }
+                                else
+                                {
+                                    SendRadioCommand(@"at@exths_agc_enable" + "" + 0);
+                                }
+                            }
+                            else
+                            {
+                                debugRTB.AppendText("[WARN] Skipping AGC Enable - requires OTP R16.0 or higher\n");
+                            }
                             break;
 
                         case "AGC Max Gain (dB)":
