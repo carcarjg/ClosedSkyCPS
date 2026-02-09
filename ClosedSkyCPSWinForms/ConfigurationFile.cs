@@ -88,7 +88,7 @@ namespace ClosedSkyCPSWinForms
             using FileStream fs = new(filePath, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new(fs);
 
-            byte[] header = reader.ReadBytes(6);
+            byte[] header = reader.ReadBytes(12);
             if (Encoding.ASCII.GetString(header) != "OPENSKYCPGV1")
             {
                 throw new InvalidDataException("Invalid file format.");
