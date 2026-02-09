@@ -84,6 +84,7 @@
             tabPage7 = new TabPage();
             tabPage8 = new TabPage();
             resetradioTab = new TabPage();
+            nukeconfigBUT = new Button();
             DebugTB = new TabPage();
             debugRTB = new RichTextBox();
             saveBUT = new Button();
@@ -92,7 +93,6 @@
             ReadBUT = new Button();
             readinfoBUT = new Button();
             ProgSetBUT = new Button();
-            nukeconfigBUT = new Button();
             RadioSettingsTAbCTL.SuspendLayout();
             tabPage1.SuspendLayout();
             panel1.SuspendLayout();
@@ -658,6 +658,19 @@
             resetradioTab.Text = "RESET RADIO";
             resetradioTab.UseVisualStyleBackColor = true;
             // 
+            // nukeconfigBUT
+            // 
+            nukeconfigBUT.BackColor = Color.Red;
+            nukeconfigBUT.Font = new Font("Segoe UI Black", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nukeconfigBUT.ForeColor = SystemColors.ControlText;
+            nukeconfigBUT.Location = new Point(406, 238);
+            nukeconfigBUT.Name = "nukeconfigBUT";
+            nukeconfigBUT.Size = new Size(427, 227);
+            nukeconfigBUT.TabIndex = 0;
+            nukeconfigBUT.Text = "Nuke Radio Config";
+            nukeconfigBUT.UseVisualStyleBackColor = false;
+            nukeconfigBUT.Click += nukeconfigBUT_Click;
+            // 
             // DebugTB
             // 
             DebugTB.Controls.Add(debugRTB);
@@ -695,6 +708,7 @@
             writeBUT.TabIndex = 2;
             writeBUT.Text = "Write";
             writeBUT.UseVisualStyleBackColor = true;
+            writeBUT.Click += writeBUT_Click;
             // 
             // loadBUT
             // 
@@ -734,19 +748,6 @@
             ProgSetBUT.Text = "Settings";
             ProgSetBUT.UseVisualStyleBackColor = true;
             ProgSetBUT.Click += ProgSetBUT_Click;
-            // 
-            // nukeconfigBUT
-            // 
-            nukeconfigBUT.BackColor = Color.Red;
-            nukeconfigBUT.Font = new Font("Segoe UI Black", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            nukeconfigBUT.ForeColor = SystemColors.ControlText;
-            nukeconfigBUT.Location = new Point(406, 238);
-            nukeconfigBUT.Name = "nukeconfigBUT";
-            nukeconfigBUT.Size = new Size(427, 227);
-            nukeconfigBUT.TabIndex = 0;
-            nukeconfigBUT.Text = "Nuke Radio Config";
-            nukeconfigBUT.UseVisualStyleBackColor = false;
-            nukeconfigBUT.Click += nukeconfigBUT_Click;
             // 
             // Form1
             // 
