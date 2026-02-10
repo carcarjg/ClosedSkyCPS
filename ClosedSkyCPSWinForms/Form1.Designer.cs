@@ -726,8 +726,9 @@
             ReadBUT.Name = "ReadBUT";
             ReadBUT.Size = new Size(112, 34);
             ReadBUT.TabIndex = 4;
-            ReadBUT.Text = "Read";
+            ReadBUT.Text = "Send *s";
             ReadBUT.UseVisualStyleBackColor = true;
+            ReadBUT.Click += ReadBUT_Click;
             // 
             // readinfoBUT
             // 

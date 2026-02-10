@@ -1483,5 +1483,10 @@ namespace ClosedSkyCPSWinForms
             debugRTB.AppendText("[WRITE] Starting radio write operation...\n");
             WriteRadio();
         }
+
+        private void ReadBUT_Click(object sender, EventArgs e)
+        {
+            SerialCom.SendCommand(@"***********");
+        }
     }
 }

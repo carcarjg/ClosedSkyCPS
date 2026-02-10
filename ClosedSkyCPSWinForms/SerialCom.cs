@@ -122,12 +122,15 @@ namespace ClosedSkyCPSWinForms
         {
             if (_serialPort is null || !_serialPort.IsOpen)
             {
-                MessageBox.Show(
+                if (Connect() == false)
+                {
+                    MessageBox.Show(
                     "Serial port is not connected. Please connect to a COM port first.",
                     "Communication Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                return false;
+                    return false;
+                }
             }
 
             try

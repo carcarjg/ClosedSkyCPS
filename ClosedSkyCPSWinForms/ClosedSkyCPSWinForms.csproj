@@ -6,12 +6,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>ClosedSkyCPS</AssemblyName>
-    <Version>1.1.3.0</Version>
-    <AssemblyVersion>1.1.3.0</AssemblyVersion>
-    <FileVersion>1.1.3.0</FileVersion>
-    <InformationalVersion>CSP 01A3</InformationalVersion>
+    <Version>1.1.4.0</Version>
+    <AssemblyVersion>1.1.4.0</AssemblyVersion>
+    <FileVersion>1.1.4.0</FileVersion>
+    <InformationalVersion>CSP 01A4</InformationalVersion>
     <ApplicationIcon />
-    <ApplicationDisplayVersion>CSP 01A3</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>CSP 01A4</ApplicationDisplayVersion>
     <!-- Disable auto-generation of source revision info -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
